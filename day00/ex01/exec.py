@@ -10,6 +10,16 @@
 		first rev  == ['my Friend', 'Hello']
 		second rev == 'hELLO MY fRIEND'
 		third      == 'DNEIRf YM OLLEh'
+    
+    better methode one :
+		step one:
+			join from [1:]
+        step two
+            reverse string 
+        three
+             swapcase
+               
+
 """
 
 import sys
@@ -17,7 +27,15 @@ import sys
 
 if len(sys.argv) < 2:
     exit(0)
-sys.argv.pop(0)
-sys.argv.reverse()
-result = ' '.join(sys.argv[::-1]).swapcase()
-print(f"{result[::-1]}")
+
+input_str = ' '.join(sys.argv[1:])
+input_str = input_str[::-1].swapcase()
+
+print(input_str)
+# 
+# sys.argv.pop(0)
+# sys.argv.reverse()
+# result = ' '.join(sys.argv[::-1]).swapcase()
+# print(f"{result[::-1]}")
+
+
