@@ -1,122 +1,88 @@
-# from pydantic import BaseModel
-# import pyinputplus as pyip
+"""toto"""
+from typing import Type
+from pydantic import BaseModel
 
-# ###############BaseModel#############
-# class Recipe(BaseModel):
-#     ingredients:list[str]
-#     mealType:str
-#     prepTime:int
+WARNING = '\033[93m'
 
-# SandwichIngredient = ["ham", "bread", "cheese" "tomatoes"]
-# cakeIngredient = ["flour", "sugar", "eggs."]
-# saladIngredient = ["avocado", "arugula", "tomatoes", "spinach"]
+###############BaseModel#############
+class Recipe(BaseModel):
+    """the value of dictionary"""
+    ingredients:list[str]
+    mealType:str
+    prepTime:int
 
-# ###############CookBook#############
+sandwich_ingredient = ["ham", "bread", "cheese", "tomatoes"]
+cake_ingredient = ["flour", "sugar", "eggs."]
+salad_ingredient = ["avocado", "arugula", "tomatoes", "spinach"]
 
-# cookbook: dict[str, Recipe] = {
-#     "sanwdiw" : Recipe(ingredients = SandwichIngredient, mealType="lunch", prepTime=10),
-#     "cake" : Recipe(ingredients = cakeIngredient, mealType="dessert", prepTime=60),
-#     "salad" : Recipe(ingredients = saladIngredient, mealType="spinach.", prepTime=15)
-# }
+###############CookBook#############
+
+cookbook: dict[str, Recipe] = {
+    "sanwdiw" : Recipe(ingredients = sandwich_ingredient, mealType="lunch", prepTime=10),
+    "cake" : Recipe(ingredients = cake_ingredient, mealType="dessert", prepTime=60),
+    "salad" : Recipe(ingredients = salad_ingredient, mealType="spinach.", prepTime=15)
+}
 
 # ###############useful functions to handle cookbook:s#############
 
-# def reciptName():
-# 	for key in cookbook.keys():
-# 			print(f"name : {key}")
-
-# def recipeDetails(name:str):
-# 	"""display details of a recipe"""
-# 	recipe:Recipe | None = cookbook.get(name)
-# 	if recipe != None:
-# 		print(f"Ingredients list: {recipe.ingredients}")
-# 		print(f"To be eaten for {recipe.mealType}.")
-# 		print(f"Takes {recipe.prepTime} minutes of cooking.")
+def  print_all_recipe_names():
+    """A function that print all recipe names."""
+    for key in cookbook:
+        print(f"name : {key}")
 
 
+def recipe_details(name:str):
+    """display details of a recipe"""
+    recipe:Recipe | None = cookbook.get(name)
+    if recipe is not None:
+        print(f"Ingredients list: {recipe.ingredients}")
+        print(f"To be eaten for {recipe.mealType}.")
+        print(f"Takes {recipe.prepTime} minutes of cooking.")
 
 
-# ################ add recipe into the cookbook#####################
+def delete_recipe(name:str):
+    """take name recipe then delete it from the cookbook"""
+    if name in cookbook:
+        cookbook.pop(name)
 
+def get_input(msg_prompt: str, condition, cast: Type = None, error_msg=None):
+    """		get input content	
+            check he cast 	
+            check the condion 
+    """
+    while True:
+        try:
+            reponse = cast(input(msg_prompt))
+            assert condition(reponse), error_msg
+        except ValueError as msg:
+            print(f"{WARNING}{msg}")
+        except AssertionError as msg:
+            print(f"{WARNING}{msg}")
 
-# def deleteRecipe(name:str):
-# 	"""take name recipe then delete it from the cookbook"""
-# 	#recipe:Recipe | None = cookbook.get(name)
-# 	if name in cookbook:
-# 		cookbook.pop(name)
+        else:
+            return reponse
 
-# def addRecipe(name, ingredients, type, time):
-# # def addRecipe(Recipe):
+def add_recipient():
+    """list of ingredient to add"""
+    warning_msg = "only be alphabet"
+    name = get_input("Enter meal name:\t", lambda x: x.isalpha(), str, warning_msg)
+    ingredient:list = []
+    input_value:str = " "
+    while len(input_value) > 0:
+        input_value = get_input("Enter ingredients:\t", lambda x: x , str, warning_msg)
+        ingredient.append(input_value)
+    type_meal:str = get_input("Type meal:\t", lambda x: x.isalpha() > 0, str, warning_msg)
+    prep_time:int  = get_input("Prep time:v\t", lambda x: x > 0, int, "only positive value")
 
-# # PART 3
+    new_recipe = Recipe(ingredients = ingredient, mealType=type_meal, prepTime=prep_time)
+    cookbook[name] =  new_recipe
 
+def menu():
+    """menu option"""
+    while True:
+        list_menu = "1: Add a recipe\n2: Delete a recipe\n3: Print a recipe\n4: Print the cookbook\n5: Quit\n>>>"
+        choice  = get_input(list_menu, lambda x: x > 0 and x in (1, 2, 3, 5), int, "No valide choice")
 
-# 	addRecipe(name, )
-
-# def ingredientToAdd():
-# 	"""list of ingredient to add"""
-# 	count = 0
-# 	listIngredient = []
-# 	ingredient:str =""
-# 	while count < 3:
-# 		ingredient = input("Enter ingredient :")
-# 		if ingredient.isalpha():
-# 			count += 1
-# 			listIngredient.append(ingredient)
-# 		else:
-# 			print("only letter")
-# 	return listIngredient
-
-
-# def inputStrToAdd():
-# 	"""name of new recipe to add"""
-# 	nameRecipe = ""
-# 	while True:
-# 		nameRecipe = input("Enter name :")
-# 		if nameRecipe.isalpha():
-# 			return nameRecipe
-# 		else:
-# 			print("only letter")
-
-
-# def timeOfNewRecipe():
-# 	"""preparation time:"""
-# 	time = pyip.inputNum('Enter a preparation time: ', min=1)
-# 	return time
-
-
-# def addRecipe():
-# 	mealName:str = inputStrToAdd()
-# 	newIngredient:list[str] = ingredientToAdd()
-# 	typeMeal:str = inputStrToAdd()
-# 	prepTime:int = timeOfNewRecipe()
-
-# 	newRecipe = Recipe(ingredients = newIngredient, mealType=typeMeal, prepTime=prepTime)
-# 	cookbook[mealName] = newRecipe
-
-# 	print("\n")
-
-# # timeOfNewRecipe()
-# # print(ingredientToAdd() )
-# # def addRecipe()
-# # timeOfNewRecipe()
-# # input_list = [ map(str,input().split()) for x in range(3)]
-# # input_list = [ int(input()) for x in range(3)]
-
-def	get_input(msg_prompt:str, condition=None, cast:int|str = None, error_msg=None):
-	""" 
-		get input content
-		check he cast
-		check the condion
-	"""
-	while True :
-		try:
-			reponse =  cast( input(msg_prompt) )
-			assert condition(reponse), error_msg
-		except ValueError as msg:
-			print(msg)
-		except AssertionError as msg:
-			print(msg)
-		else:
-			return reponse
-get_input("enter numer :\t", lambda x : x > 0, int, "non negative number")
+menu()
+# add_recipient()
+# print_all_recipe_names()
