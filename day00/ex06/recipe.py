@@ -1,8 +1,12 @@
 """toto"""
 from typing import Type
 from pydantic import BaseModel
+from colorama import Fore, Back, Style
+import sys
 
-WARNING = '\033[93m'
+WARNING_STR_MSG = "only be alphabet"
+MENU_PLAN = "1: Add a recipe\n2: Delete a recipe\n3: Print a recipe\
+\n4: Print the cookbook\n5: Quit\n\nPlease select an option:\n\n>>>\t"
 
 ###############BaseModel#############
 class Recipe(BaseModel):
@@ -18,7 +22,7 @@ salad_ingredient = ["avocado", "arugula", "tomatoes", "spinach"]
 ###############CookBook#############
 
 cookbook: dict[str, Recipe] = {
-    "sanwdiw" : Recipe(ingredients = sandwich_ingredient, mealType="lunch", prepTime=10),
+    "sandwich" : Recipe(ingredients = sandwich_ingredient, mealType="lunch", prepTime=10),
     "cake" : Recipe(ingredients = cake_ingredient, mealType="dessert", prepTime=60),
     "salad" : Recipe(ingredients = salad_ingredient, mealType="spinach.", prepTime=15)
 }
@@ -33,11 +37,16 @@ def  print_all_recipe_names():
 
 def recipe_details(name:str):
     """display details of a recipe"""
-    recipe:Recipe | None = cookbook.get(name)
-    if recipe is not None:
+    try:
+        recipe = cookbook[name]
         print(f"Ingredients list: {recipe.ingredients}")
         print(f"To be eaten for {recipe.mealType}.")
-        print(f"Takes {recipe.prepTime} minutes of cooking.")
+        print(f"Takes {recipe.prepTime} minutes of cooking.\n")
+    except KeyError as msg:
+        print(f"{Fore.YELLOW} {msg} doesn't exist\n")
+    finally:
+        print(Style.RESET_ALL)
+
 
 
 def delete_recipe(name:str):
@@ -55,23 +64,24 @@ def get_input(msg_prompt: str, condition, cast: Type = None, error_msg=None):
             reponse = cast(input(msg_prompt))
             assert condition(reponse), error_msg
         except ValueError as msg:
-            print(f"{WARNING}{msg}")
+            print(f"{Fore.RED}{msg}")
         except AssertionError as msg:
-            print(f"{WARNING}{msg}")
-
+            print(f"{Fore.RED}{msg}")
         else:
             return reponse
+        finally:
+            print(Style.RESET_ALL)
+
 
 def add_recipient():
     """list of ingredient to add"""
-    warning_msg = "only be alphabet"
-    name = get_input("Enter meal name:\t", lambda x: x.isalpha(), str, warning_msg)
+    name = get_input("Enter meal name:\t", lambda x: x.isalpha(), str, WARNING_STR_MSG)
     ingredient:list = []
     input_value:str = " "
     while len(input_value) > 0:
-        input_value = get_input("Enter ingredients:\t", lambda x: x , str, warning_msg)
+        input_value = get_input("Enter ingredients:\t", lambda x: x , str, WARNING_STR_MSG)
         ingredient.append(input_value)
-    type_meal:str = get_input("Type meal:\t", lambda x: x.isalpha() > 0, str, warning_msg)
+    type_meal:str = get_input("Type meal:\t", lambda x: x.isalpha() > 0, str, WARNING_STR_MSG)
     prep_time:int  = get_input("Prep time:v\t", lambda x: x > 0, int, "only positive value")
 
     new_recipe = Recipe(ingredients = ingredient, mealType=type_meal, prepTime=prep_time)
@@ -79,10 +89,18 @@ def add_recipient():
 
 def menu():
     """menu option"""
+    print("Welcome to the Python Cookbook !")
     while True:
-        list_menu = "1: Add a recipe\n2: Delete a recipe\n3: Print a recipe\n4: Print the cookbook\n5: Quit\n>>>"
-        choice  = get_input(list_menu, lambda x: x > 0 and x in (1, 2, 3, 5), int, "No valide choice")
+        choice: int|str = get_input(MENU_PLAN, lambda x: x > 0 and x in (1, 2, 3, 5), int, "No valide choice")
+        if choice == 1:
+            add_recipient()
+        elif choice == 2:
+            delete_recipe( get_input("Enter meal name:\t", lambda x: x.isalpha(), str, WARNING_STR_MSG))
+        elif choice == 3:
+            recipe_details(get_input("Enter meal name:\t", lambda x: x.isalpha(), str, WARNING_STR_MSG))
+        elif choice == 4:
+            print_all_recipe_names()
+        elif choice == 5:
+            sys.exit(0)
 
 menu()
-# add_recipient()
-# print_all_recipe_names()
