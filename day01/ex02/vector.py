@@ -8,7 +8,6 @@ IS_COLUMN_VECTOR = 3
 def is_range(values):
     try:
         if values[0] > values[1]:
-             print("hello")            
              raise TypeError("error index 0 must be smaller than index 1, ex: (a < b)")
     except TypeError as error_msg:
         print(error_msg, file=sys.stdout)
@@ -22,23 +21,23 @@ def is_range(values):
 def is_column_vector(column):
     value =  copy.deepcopy(column)
     shape = (len(column), 1)
+    # print("Column is oki")
     return value, shape, IS_COLUMN_VECTOR
+
 
 
 def check_is_column_vector(column):
 
     if not  all([isinstance(row, list) and  len(row) == 1 and isinstance(row[0], float) for row in column]):
         return False
-    print("Column is oki")    
     return True
 
 
 def is_row_vector(row_vector):
-    if not all([isinstance(value, float) for value in row_vector]):
-        return False, False, False
-    value =  copy.deepcopy(column)
-    shape = (1, len(row_vector))
-    return value, shape, IS_COLUMN_VECTOR
+
+    value =  copy.deepcopy(row_vector)
+    shape = (1, len(row_vector[0]))
+    return value, shape
 
 def check_is_row_vector(lst):
     if not isinstance(lst, list):
@@ -49,7 +48,6 @@ def check_is_row_vector(lst):
         return False
     if not all(isinstance(num, float) for num in lst[0]):
         return False
-    print("Row is oki")        
     return True
 
 class Vector:
@@ -65,11 +63,14 @@ class Vector:
             self.values, self.shape, self.data_type = is_range(values)
         elif check_is_column_vector(values):
             self.values, self.shape, self.data_type = is_column_vector(values)
+
         elif check_is_row_vector(values):
-            self.values, self.shape, self.data_type = is_row_vector(values)
+            self.values, self.shape = is_row_vector(values)
+            # print("the shape : ", self.shape)
         else:
             print("Errror ELse")
             exit(1)
+
 
 
     def __add__(self, other):
@@ -119,61 +120,75 @@ class Vector:
             for a in self.values:
                 res.append([a[0] * other])
         else: # (1, n)
-            for a in self.values:
-                res.append(a * other)
+            res.append([a * other for a in self.values[0]])
         return Vector(res)
 
-    
+
     def __rmul__(self, other):
         return self.__mul__(other)
 
-    
+
     def __truediv__(self, other):
-        if not isinstance(other, (float, int)):
-            raise ValueError("Truediv only with float/int")
-        if float(other) == 0.0:
-            raise ValueError("Cannot div by 0")
-        res = []
-        if self.shape == (1, 1):
-            res.append(self.values[0] / other)
-        elif self.shape[0] > 1:#(n , 1)
-            for a in self.values:
-                res.append([a[0] / other])
-        else: # (1, n)
-            for a in self.values:
-                res.append(a / other)
-        return Vector(res)
+        try:
+            if not isinstance(other, (float, int)):
+                raise ValueError("Truediv only with float/int")
+            if float(other) == 0.0:
+                raise ValueError("# ZeroDivisionError: division by zero.")
+            res = []
+            if self.shape == (1, 1):
+                res.append(self.values[0] / other)
+            elif self.shape[0] > 1:#(n , 1)
+                for a in self.values:
+                    res.append([a[0] / other])
+            else: # (1, n)
+               res.append([a /other for a in self.values[0]])
+        except ValueError as error_msg:
+            print(error_msg)
+        else:
+            return Vector(res)
 
 
     def dot(self, other) -> float or int:
-        if not (isinstance(other, Vector) and self.shape == other.shape) :
-            raise ValueError("Vector.dot take a vector of same dimension")
+        try:
+            if not (isinstance(other, Vector) and self.shape == other.shape) :
+                raise ValueError("Vector.dot take a vector of same dimension")
 
-        res = 0
-        length = len(self.values)
-        for i in range(length):
-            res += self.value[i] * other.value[i]
-        return res
+            res = 0
+            length = len(self.values)
+            if self.shape[0] == 1:
+                for a, b in zip(self.values[0], other.values[0]):
+                    res += a * b
+            else:
+                for a, b in zip(self.values, other.values):
+                    res += a[0] * b[0]
+        except ValueError as error_msg:
+            print(error_msg, file=sys.stderr)
+        else:   
+            return res
     
     def __rtruediv__(self, other):
-        raise ValueError('A scalar cannot be divided by a Vector.')
-
+        try:
+            raise ValueError('A scalar cannot be divided by a Vector.')
+        except ValueError as error_msg:
+            print(error_msg, file=sys.stderr)
 
 
     def T(self):
         res = []
-        for x in self.values:
-            if isinstance(x, float):
-                res.append([x])
-            else:
-                res.append(x[0])
+        if self.shape[0] > 1:
+            tmp = [ x[0] for x in self.values]
+            res.append(tmp)
+        else:
+            for lst in self.values:
+                for x in lst:
+                    res.append([x])
+
+        print(res)
         return Vector(res)
 
-    
+
     def __repr__(self) -> str:
         return (f"Values: {self.values} | Shape: {self.shape}")
 
     def __str__(self) -> str:
         return (f"Vector({self.values})")
-
-
