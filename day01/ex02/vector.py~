@@ -1,0 +1,66 @@
+import sys
+
+IS_SIZE= 'is digit'
+IS_RANGE= 'is range'
+
+def process_range(values):
+    try:
+        if values[0] < values[1]:
+             TypeError("error index 0 must be smaller than index 1, ex: (a < b)")
+    except TypeError as error_msg:
+        print(error_msg, file=sys.stdout)
+        exit(1)
+    else:
+        value = [[float(i)] for i in range(values[0], values[1])]
+        shape = (len(values), 1)
+        return value, shape, IS_RANGE
+    
+class Vector:
+
+    def __init__(self, values):
+        if isinstance(values, int):
+            self.values = [[float(i)] for i in range(values)]
+            self.shape = (len(self.values), 1)
+            self.data_type = IS_SIZE
+        elif isinstance(values, tuple):
+            self.values, self.shape, self.data_type = process_range(values)
+
+        print(self.values)
+        print(self.shape)        
+	#     self.size = len(self.values)
+
+    # def __add__(self, x):
+    #     return(Values([v + x for v in self.values]))
+
+
+    # def __radd__(self, x):
+    #     return(Values([v + x for v in self.values]))
+
+
+    # def __sub__(self, x):
+    #     return(Values([v - x for v in self.values]))
+
+
+    # def __rsub__(self, x):
+    #     return(Values([x - v for v in self.values]))
+
+    # def __truediv__(self, x):
+    #     try:
+    #         return(Values([v / x for v in self.values]))
+    #     except ZeroDivisionError as e:
+    #         return(e)
+
+    # def __rtruediv__(self, x):
+    #     try:
+    #         return(Values([x / v for v in self.values]))
+    #     except ZeroDivisionError as e:
+    #         return(e)
+
+    # def __mul__(self, x):
+    #     return(Values([v * x for v in self.values]))
+
+    # def __rmul__(self, x):
+    #     return(Values([v * x for v in self.values]))
+
+    # def __repr__(self):
+    #     return (self.values.__repr__())
